@@ -7,7 +7,7 @@ ROOT = Path(__file__).resolve().parents[1]
 TRAIN_CSV = ROOT / "train.csv"
 TEST_CSV = ROOT / "test.csv"
 TRAIN_DIR = ROOT / "train" / "train"
-TEST_DIR = ROOT / "test" / "test"
+TEST_DIR = ROOT / "test"
 
 def load_csv_files() -> Tuple[pd.DataFrame, pd.DataFrame]:
     """Load the train and test CSV files."""
