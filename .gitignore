@@ -1,0 +1,30 @@
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+__pycache__/
+
+# Python
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+*.egg
+.Python
+env/
+venv/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Generated outputs
+outputs/baseline_cnn.pt
+outputs/submission.csv
+outputs/training_curves.png
+
+# OS
+.DS_Store
+Thumbs.db
