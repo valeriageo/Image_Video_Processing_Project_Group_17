@@ -26,11 +26,12 @@ OUTPUT_DIR = ROOT / 'outputs'
 device = get_device()
 train_df, test_df = load_csv_files()
 
-print("2 Models with Different Seeds")
+seeds = [42, 789, 2025]
+print(f"{len(seeds)} Models with Different Seeds")
 all_test_probs = []
 
-for model_idx, seed in enumerate([42, 789], 1):
-    print(f"\n[Model {model_idx}/2] Training with seed={seed}")
+for model_idx, seed in enumerate(seeds, 1):
+    print(f"\n[Model {model_idx}/{len(seeds)}] Training with seed={seed}")
     
     torch.manual_seed(seed)
     np.random.seed(seed)
@@ -91,7 +92,7 @@ print("ENSEMBLE AVERAGING")
 avg_probs = np.mean(np.array(all_test_probs), axis=0)
 final_predictions = np.argmax(avg_probs, axis=1)
 
-print(f"Averaged probabilities from 2 models")
+print(f"Averaged probabilities from {len(seeds)} models")
 print(f"Sample predictions: {final_predictions[:10]}")
 
 # Save

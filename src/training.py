@@ -144,7 +144,7 @@ def fit(
             if save_path is not None:
                 save_path.parent.mkdir(parents=True, exist_ok=True)
                 torch.save(model.state_dict(), save_path)
-                print(f"  ✓ New best — saved to {save_path}")
+                print(f"  New best - saved to {save_path}")
         else:
             patience_counter += 1
             if patience_counter >= patience:
