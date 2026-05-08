@@ -70,7 +70,7 @@ def copy_if_exists(source: Path, destination: Path) -> bool:
 
 def main():
     outputs = ROOT / "outputs"
-    report_dir = outputs / "report_figures"
+    report_dir = outputs / "figures"
     report_dir.mkdir(parents=True, exist_ok=True)
 
     preprocessing_path = report_dir / "preprocessing_overview.png"
@@ -95,7 +95,7 @@ def main():
 
     ready = preprocessing_path.exists() and training_curves_path.exists() and confusion_matrix_path.exists()
     if ready:
-        print("✓ Report figure set is ready in outputs/report_figures/")
+        print("✓ Report figure set is ready in outputs/figures/")
     else:
         print("✗ Report figure set is incomplete")
     return ready

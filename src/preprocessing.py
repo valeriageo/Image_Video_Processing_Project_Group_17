@@ -60,5 +60,5 @@ def split_train_validation(df, val_size: float = 0.2, seed: int = 42):
     """Create a stratified train/validation split."""
     from sklearn.model_selection import train_test_split
 
-    train_df, val_df = train_test_split(df, test_size=val_size, andom_state=seed,stratify=df["Category"],)
+    train_df, val_df = train_test_split(df, test_size=val_size, random_state=seed, stratify=df["Category"])
     return train_df.reset_index(drop=True), val_df.reset_index(drop=True)

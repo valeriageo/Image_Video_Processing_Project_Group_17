@@ -106,7 +106,7 @@ This is the final step in the pipeline.
 - `run_training.py`, `run_all_checks.py`, `run_evaluation_and_submission.py`, `run_hyperparam_sweep.py` - Convenience scripts for running the project
 
 ### Report Figures:
-The figures for the report are saved in `outputs/report_figures/`:
+The figures for the report are saved in `outputs/figures/`:
 - `preprocessing_overview.png`
 - `training_curves.png`
 - `confusion_matrix.png`
