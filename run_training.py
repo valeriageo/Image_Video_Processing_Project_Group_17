@@ -59,8 +59,8 @@ def main():
 
     device = get_device()
     model = BaselineCNN(num_classes=10).to(device)
-    criterion = torch.nn.CrossEntropyLoss()
-    optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
+    criterion = torch.nn.CrossEntropyLoss(label_smoothing=0.1)  # Better regularization
+    optimizer = torch.optim.AdamW(model.parameters(), lr=0.003, weight_decay=1e-4)  # Best hyperparams from sweep
 
     history = fit(
         model=model,
@@ -69,7 +69,8 @@ def main():
         criterion=criterion,
         optimizer=optimizer,
         device=device,
-        epochs=3,
+        epochs=30,  # Train longer with early stopping
+        patience=7,  # Early stopping patience
         save_path=ROOT / "outputs" / "baseline_cnn.pt",
     )
     OUTPUT_DIR = ROOT / "outputs"

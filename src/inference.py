@@ -1,6 +1,7 @@
 from __future__ import annotations
 from pathlib import Path
 from typing import List
+import numpy as np
 import pandas as pd
 import torch
 from torch.utils.data import DataLoader
@@ -26,6 +27,38 @@ def predict_labels(model: torch.nn.Module, dataloader: DataLoader, device: torch
             logits = model(images)
             batch_predictions = torch.argmax(logits, dim=1).cpu().tolist()
             predictions.extend(batch_predictions)
+    return predictions
+
+def predict_labels_with_tta(model: torch.nn.Module, dataloaders: List[DataLoader], device: torch.device) -> List[int]:
+    """Predict class labels using Test-Time Augmentation (TTA).
+    
+    Averages predictions across multiple augmentation strategies and returns class with highest vote.
+    
+    Args:
+        model: BaselineCNN model
+        dataloaders: List of DataLoaders with different augmentation strategies
+        device: torch device (cpu or cuda)
+    
+    Returns:
+        List of predicted class labels (0-9)
+    """
+    model.eval()
+    num_samples = len(dataloaders[0].dataset)
+    all_logits = np.zeros((num_samples, 10))  # Accumulate logits across TTA
+    
+    with torch.no_grad():
+        for dataloader in dataloaders:
+            idx = 0
+            for images, _ in dataloader:
+                images = images.to(device)
+                logits = model(images).cpu().numpy()
+                batch_size = logits.shape[0]
+                all_logits[idx:idx+batch_size] += logits
+                idx += batch_size
+    
+    # Average logits and take argmax
+    avg_logits = all_logits / len(dataloaders)
+    predictions = np.argmax(avg_logits, axis=1).tolist()
     return predictions
 
 def build_submission(test_ids: List[int], predicted_labels: List[int]) -> pd.DataFrame:

@@ -18,9 +18,9 @@ from torch.utils.data import DataLoader
 from sklearn.metrics import accuracy_score, classification_report
 
 from src.data_loading import load_csv_files, build_image_path
-from src.preprocessing import split_train_validation, get_eval_transforms, ImageClassificationDataset
+from src.preprocessing import split_train_validation, get_eval_transforms, get_train_transforms, ImageClassificationDataset
 from src.baseline_cnn import BaselineCNN
-from src.inference import load_model, predict_labels, build_submission, save_submission
+from src.inference import load_model, predict_labels, predict_labels_with_tta, build_submission, save_submission
 from src.training import get_device
 
 def main():
@@ -73,18 +73,28 @@ def main():
     print("\nPer-class metrics:")
     print(classification_report(all_y_true, all_y_pred))
 
-    # runing predictions on test set
+    # running predictions on test set with Test-Time Augmentation (TTA)
     print("\n" + "-" * 80)
-    print("2. RUNNING PREDICTIONS ON TEST SET")
+    print("2. RUNNING PREDICTIONS ON TEST SET (with TTA)")
     print("-" * 80)
 
-    test_transform = get_eval_transforms(32)
     test_paths = [build_image_path(image_id, split='test') for image_id in test_df['Id'].tolist()]
-    test_dataset = ImageClassificationDataset(test_paths, labels=None, transform=test_transform)
-    test_loader = DataLoader(test_dataset, batch_size=64, shuffle=False, num_workers=0)
-
-    predicted_labels = predict_labels(model, test_loader, device)
-    print(f"✓ Generated {len(predicted_labels)} test predictions")
+    
+    # TTA: Create dataloaders with different augmentation strategies
+    transform_noaug = get_eval_transforms(32)  # No augmentation
+    transform_aug = get_train_transforms(32)    # Full augmentation
+    
+    test_dataset_noaug = ImageClassificationDataset(test_paths, labels=None, transform=transform_noaug)
+    test_dataset_aug = ImageClassificationDataset(test_paths, labels=None, transform=transform_aug)
+    
+    test_loader_noaug = DataLoader(test_dataset_noaug, batch_size=64, shuffle=False, num_workers=0)
+    test_loader_aug = DataLoader(test_dataset_aug, batch_size=64, shuffle=False, num_workers=0)
+    
+    # Use TTA with multiple augmentation strategies
+    print("  Using Test-Time Augmentation (TTA) with 2 strategies...")
+    predicted_labels = predict_labels_with_tta(model, [test_loader_noaug, test_loader_aug], device)
+    
+    print(f"✓ Generated {len(predicted_labels)} test predictions (with TTA)")
     print(f"  - Unique classes predicted: {sorted(set(predicted_labels))}")
     print(f"  - Sample predictions (first 10): {predicted_labels[:10]}")
 
