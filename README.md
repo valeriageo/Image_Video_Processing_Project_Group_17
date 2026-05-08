@@ -97,17 +97,19 @@ This is the final step in the pipeline.
 3. Run cells from top to bottom in each notebook
 
 ### Project Structure:
-- `src/` - Reusable Python modules imported by notebooks
-  - `baseline_cnn.py` - CNN model architecture
-  - `data_loading.py` - Data loading utilities
-  - `preprocessing.py` - Data transforms and dataset classes
-  - `training.py` - Training and evaluation functions
-  - `inference.py` - Prediction and submission utilities
-- `notebooks/` - Jupyter notebooks for the pipeline
-- `train/train/` - Training images (organized by class: 0-9)
+- `src/` - Reusable Python modules used by notebooks and scripts
+- `notebooks/` - Jupyter notebooks for the end-to-end pipeline
+- `outputs/` - Saved checkpoints, predictions, and report figures
+- `train/train/` - Training images organized by class (0-9)
 - `test/` - Test images
 - `*.csv` - Train/test metadata files
-- `outputs/` - Generated model checkpoints and predictions
+- `run_training.py`, `run_all_checks.py`, `run_evaluation_and_submission.py`, `run_hyperparam_sweep.py` - Convenience scripts for running the project
+
+### Report Figures:
+The figures for the report are saved in `outputs/report_figures/`:
+- `preprocessing_overview.png`
+- `training_curves.png`
+- `confusion_matrix.png`
 
 ### Notes:
 - The notebooks automatically detect the project root, so no manual path editing needed

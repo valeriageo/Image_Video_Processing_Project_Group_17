@@ -152,3 +152,24 @@ def fit(
                 break
 
     return history
+def evaluate_model(
+    model: nn.Module,
+    dataloader: DataLoader,
+    device: torch.device,
+) -> tuple[float, float]:
+    """
+    Convenience wrapper for validation evaluation.
+    Returns:
+        accuracy, loss
+    """
+
+    criterion = nn.CrossEntropyLoss()
+
+    result = evaluate(
+        model=model,
+        dataloader=dataloader,
+        criterion=criterion,
+        device=device,
+    )
+
+    return result.accuracy, result.loss
