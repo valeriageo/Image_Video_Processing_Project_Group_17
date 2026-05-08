@@ -7,14 +7,12 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-
 def find_project_root(start=None):
     start = (start or Path.cwd()).resolve()
     for candidate in [start, *start.parents]:
         if (candidate / "requirements.txt").exists() and (candidate / "src").exists():
             return candidate
     raise FileNotFoundError("Project root not found")
-
 
 ROOT = find_project_root()
 if str(ROOT) not in sys.path:
@@ -24,7 +22,6 @@ from PIL import Image
 
 from src.data_loading import load_csv_files, build_image_path
 from src.preprocessing import get_eval_transforms
-
 
 def save_preprocessing_figure(out_path: Path) -> None:
     train_df, _ = load_csv_files()
@@ -67,7 +64,6 @@ def copy_if_exists(source: Path, destination: Path) -> bool:
     shutil.copy2(source, destination)
     return True
 
-
 def main():
     outputs = ROOT / "outputs"
     report_dir = outputs / "figures"
@@ -78,28 +74,27 @@ def main():
     confusion_matrix_path = report_dir / "confusion_matrix.png"
 
     save_preprocessing_figure(preprocessing_path)
-    print(f"✓ Saved preprocessing figure: {preprocessing_path}")
+    print(f"Saved preprocessing figure: {preprocessing_path}")
 
     training_ok = copy_if_exists(outputs / "training_curves.png", training_curves_path)
     confusion_ok = copy_if_exists(outputs / "confusion_improved.png", confusion_matrix_path)
 
     if training_ok:
-        print(f"✓ Saved training curves figure: {training_curves_path}")
+        print(f"Saved training curves figure: {training_curves_path}")
     else:
-        print(f"✗ Missing source figure: {outputs / 'training_curves.png'}")
+        print(f"Missing source figure: {outputs / 'training_curves.png'}")
 
     if confusion_ok:
-        print(f"✓ Saved confusion matrix figure: {confusion_matrix_path}")
+        print(f"Saved confusion matrix figure: {confusion_matrix_path}")
     else:
-        print(f"✗ Missing source figure: {outputs / 'confusion_improved.png'}")
+        print(f"Missing source figure: {outputs / 'confusion_improved.png'}")
 
     ready = preprocessing_path.exists() and training_curves_path.exists() and confusion_matrix_path.exists()
     if ready:
-        print("✓ Report figure set is ready in outputs/figures/")
+        print("Report figure set is ready in outputs/figures/")
     else:
-        print("✗ Report figure set is incomplete")
+        print("Report figure set is incomplete")
     return ready
-
 
 if __name__ == "__main__":
     success = main()

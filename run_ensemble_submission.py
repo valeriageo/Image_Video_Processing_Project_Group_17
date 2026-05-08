@@ -1,10 +1,4 @@
 #!/usr/bin/env python3
-"""
-ENSEMBLE SUBMISSION
-Train multiple models with different seeds/dropouts and ensemble predictions.
-This typically improves accuracy by 0.5-1% by reducing overfitting.
-"""
-
 from pathlib import Path
 import sys
 import numpy as np
@@ -81,7 +75,7 @@ for model_idx, seed in enumerate(seeds, 1):
     )
     
     best_val_acc = max(history['val_accuracy'])
-    print(f"✓ Best validation accuracy: {best_val_acc:.4f}")
+    print(f"Best validation accuracy: {best_val_acc:.4f}")
     
     # Generateing predictions on test set
     test_paths = [build_image_path(image_id, split='test') for image_id in test_df['Id'].tolist()]
@@ -111,7 +105,7 @@ for model_idx, seed in enumerate(seeds, 1):
     avg_logits = all_logits / 2  # Average TTA predictions
     predictions = np.argmax(avg_logits, axis=1)
     all_test_predictions.append(predictions)
-    print(f"✓ Generated test predictions")
+    print(f"Generated test predictions")
 
 # Ensemble voting for all 3 models
 print("ENSEMBLE VOTING")
@@ -122,7 +116,7 @@ print(f"Ensemble shape: {all_test_predictions.shape}  (3 models × 3000 test sam
 # Majority voting
 final_predictions = np.mode(all_test_predictions, axis=0)[0].flatten()
 
-print(f"✓ Final ensemble predictions generated")
+print(f"Final ensemble predictions generated")
 print(f"  - Unique classes: {sorted(np.unique(final_predictions).tolist())}")
 print(f"  - Sample predictions: {final_predictions[:10]}")
 

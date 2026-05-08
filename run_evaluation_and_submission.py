@@ -24,7 +24,7 @@ def main():
     if not MODEL_PATH.exists():
         raise FileNotFoundError(f"Model checkpoint not found: {MODEL_PATH}")
     
-    print(f"\n✓ Model checkpoint found: {MODEL_PATH}")
+    print(f"\nModel checkpoint found: {MODEL_PATH}")
 
     # Loading train/val data
     train_df, test_df = load_csv_files()
@@ -85,7 +85,7 @@ def main():
 
     submission_df = build_submission(test_df['Id'].tolist(), predicted_labels)
     save_submission(submission_df, SUBMISSION_PATH)
-    print(f"✓ Submission saved to: {SUBMISSION_PATH}")
+    print(f"Submission saved to: {SUBMISSION_PATH}")
     print(f"  - Shape: {submission_df.shape}")
     print(f"  - Columns: {list(submission_df.columns)}")
     print(f"\nFirst 5 rows of submission:")
