@@ -10,14 +10,12 @@ import torch
 from torch.utils.data import DataLoader
 from sklearn.metrics import confusion_matrix, classification_report
 
-
 def find_project_root(start=None):
     start = (start or Path.cwd()).resolve()
     for candidate in [start, *start.parents]:
         if (candidate / "requirements.txt").exists() and (candidate / "src").exists():
             return candidate
     raise FileNotFoundError("Project root not found")
-
 
 ROOT = find_project_root()
 if str(ROOT) not in sys.path:
@@ -34,7 +32,6 @@ from src.baseline_cnn import BaselineCNN
 from src.simple_baseline import SimpleBaseline
 from src.training import fit, get_device
 
-
 def build_loaders(train_df, val_df, batch_size=64):
     train_transform = get_train_transforms(32)
     val_transform = get_eval_transforms(32)
@@ -48,7 +45,6 @@ def build_loaders(train_df, val_df, batch_size=64):
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=0)
     val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False, num_workers=0)
     return train_loader, val_loader, train_dataset, val_dataset
-
 
 def eval_and_report(model, dataloader, device, out_prefix: Path):
     model.eval()
@@ -75,7 +71,6 @@ def eval_and_report(model, dataloader, device, out_prefix: Path):
     plt.savefig(out_prefix.with_suffix('.png'), bbox_inches='tight', dpi=150)
     plt.close()
     return report, cm
-
 
 def save_sample_predictions(model, val_dataset, val_loader, device, out_path: Path, num_images=25):
     import random
@@ -109,11 +104,10 @@ def save_sample_predictions(model, val_dataset, val_loader, device, out_path: Pa
     plt.savefig(out_path, dpi=150, bbox_inches='tight')
     plt.close()
 
-
 def randomized_label_test(train_df, val_df, epochs=3):
-    # Shuffle train labels while keeping validation labels intact
+    # Shuffling train labels while keeping validation labels intact
     import random
-    # Build train paths from original train_df but assign shuffled labels separately so image files remain valid
+    # Building train paths from original train_df but assign shuffled labels separately so image files remain valid
     train_paths = [build_image_path(row.Id, split="train", label=row.Category) for row in train_df.itertuples(index=False)]
     labels = [int(row.Category) for row in train_df.itertuples(index=False)]
     random.shuffle(labels)
@@ -132,7 +126,6 @@ def randomized_label_test(train_df, val_df, epochs=3):
     history = fit(model, train_loader, val_loader, criterion, optimizer, device, epochs=epochs, save_path=None)
     return history
 
-
 def main():
     train_df, _ = load_csv_files()
     train_split, val_split = split_train_validation(train_df, val_size=0.2, seed=42)
@@ -145,14 +138,14 @@ def main():
     OUT = ROOT / 'outputs'
     OUT.mkdir(exist_ok=True)
 
-    # 1) Train SimpleBaseline
+    #Training SimpleBaseline
     simple_model = SimpleBaseline(num_classes=10).to(device)
     criterion = torch.nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(simple_model.parameters(), lr=1e-3)
     print('Training SimpleBaseline...')
     simple_history = fit(simple_model, train_loader, val_loader, criterion, optimizer, device, epochs=3, save_path=OUT / 'simple_baseline.pt')
 
-    # 2) Evaluate improved model (existing saved checkpoint)
+    #Evaluating improved model (existing saved checkpoint)
     improved_model = BaselineCNN(num_classes=10).to(device)
     improved_model.load_state_dict(torch.load(ROOT / 'outputs' / 'baseline_cnn.pt', map_location=device))
 
@@ -160,20 +153,19 @@ def main():
     report_improved, cm_improved = eval_and_report(improved_model, val_loader, device, OUT / 'confusion_improved')
     print('Improved model classification report:\n', report_improved)
 
-    # 3) Evaluate SimpleBaseline
+    # Evaluating SimpleBaseline
     print('Evaluating simple baseline...')
     report_simple, cm_simple = eval_and_report(simple_model, val_loader, device, OUT / 'confusion_simple')
     print('Simple baseline classification report:\n', report_simple)
 
-    # 4) Save sample validation predictions (improved)
+    # Saving sample validation predictions (improved)
     save_sample_predictions(improved_model, val_dataset, val_loader, device, OUT / 'val_predictions_improved.png')
     print('Saved sample predictions to', OUT / 'val_predictions_improved.png')
 
-    # 5) Randomized-label sanity test
+    # Randomized label sanity test
     print('Running randomized-label sanity test (SimpleBaseline)...')
     rand_history = randomized_label_test(train_split, val_split, epochs=3)
     print('Randomized-label test done. Last val accuracy:', rand_history['val_accuracy'][-1])
-
 
 if __name__ == '__main__':
     main()

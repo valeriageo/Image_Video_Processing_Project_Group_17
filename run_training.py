@@ -2,13 +2,12 @@
 from pathlib import Path
 import sys
 
-# Use a non-interactive backend for matplotlib when running in terminal
+# Using a non-interactive backend for matplotlib when running in terminal
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import torch
 from torch.utils.data import DataLoader
-
 
 def find_project_root(start=None):
     start = (start or Path.cwd()).resolve()
@@ -16,7 +15,6 @@ def find_project_root(start=None):
         if (candidate / "requirements.txt").exists() and (candidate / "src").exists():
             return candidate
     raise FileNotFoundError("Project root not found")
-
 
 ROOT = find_project_root()
 if str(ROOT) not in sys.path:
@@ -74,7 +72,6 @@ def main():
         epochs=3,
         save_path=ROOT / "outputs" / "baseline_cnn.pt",
     )
-
     OUTPUT_DIR = ROOT / "outputs"
     OUTPUT_DIR.mkdir(exist_ok=True)
     PLOT_PATH = OUTPUT_DIR / "training_curves.png"
@@ -84,19 +81,16 @@ def main():
     axes[0].plot(history["val_loss"], label="val loss", color="blue")
     axes[0].set_title("Loss")
     axes[0].legend()
-
     axes[1].plot(history["train_accuracy"], label="train accuracy", color="red")
     axes[1].plot(history["val_accuracy"], label="val acc", color="blue")
     axes[1].set_title("Accuracy")
     axes[1].legend()
-
     fig.tight_layout()
     fig.savefig(PLOT_PATH, dpi=150, bbox_inches="tight")
     print("saved training curves to:", PLOT_PATH)
     print("saved model to:", ROOT / "outputs" / "baseline_cnn.pt")
     print("final train accuracy:", history["train_accuracy"][-1])
     print("final val accuracy:", history["val_accuracy"][-1])
-
 
 if __name__ == "__main__":
     main()

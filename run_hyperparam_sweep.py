@@ -6,14 +6,12 @@ import csv
 ROOT = Path.cwd()
 if str(ROOT) not in sys.path:
     sys.path.append(str(ROOT))
-
 from src.data_loading import load_csv_files, build_image_path
 from src.preprocessing import split_train_validation, get_train_transforms, get_eval_transforms, ImageClassificationDataset
 from src.simple_baseline import SimpleBaseline
 from src.training import fit, get_device
 from torch.utils.data import DataLoader
 import torch
-
 
 def build_loaders(train_df, val_df, batch_size=64):
     train_transform = get_train_transforms(32)
@@ -29,17 +27,13 @@ def build_loaders(train_df, val_df, batch_size=64):
     val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False, num_workers=0)
     return train_loader, val_loader
 
-
 def main():
     train_df, _ = load_csv_files()
     train_split, val_split = split_train_validation(train_df, val_size=0.2, seed=42)
-
     lrs = [1e-4, 1e-3, 3e-3]
     drops = [0.2, 0.3, 0.5]
     results = []
-
     device = get_device()
-
     train_loader, val_loader = build_loaders(train_split, val_split, batch_size=64)
 
     OUT = ROOT / 'outputs'

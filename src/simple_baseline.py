@@ -1,7 +1,6 @@
 import torch
 from torch import nn
 
-
 class SimpleBaseline(nn.Module):
     """A minimal CNN baseline: 2 conv blocks and a small classifier.
 
@@ -33,11 +32,10 @@ class SimpleBaseline(nn.Module):
         x = self.classifier(x)
         return x
 
-
 if __name__ == "__main__":
     m = SimpleBaseline()
     print(m)
+    
     import torch
-
     dummy = torch.randn(2, 1, 32, 32)
     print(m(dummy).shape)

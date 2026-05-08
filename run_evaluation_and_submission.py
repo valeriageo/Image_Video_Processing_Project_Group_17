@@ -23,13 +23,11 @@ from src.baseline_cnn import BaselineCNN
 from src.inference import load_model, predict_labels, build_submission, save_submission
 from src.training import get_device
 
-
 def main():
     print("=" * 80)
     print("PERSON 3 — EVALUATION + SUBMISSION + INTEGRATION")
     print("=" * 80)
 
-    # Setup
     device = get_device()
     OUT = ROOT / 'outputs'
     OUT.mkdir(exist_ok=True)
@@ -48,7 +46,7 @@ def main():
     print(f"  - Validation set size: {len(val_split)}")
     print(f"  - Test set size: {len(test_df)}")
 
-    # 1. EVALUATE ON VALIDATION SET
+    # evaluating in valuatuion set
     print("\n" + "-" * 80)
     print("1. EVALUATING MODEL ON VALIDATION SET")
     print("-" * 80)
@@ -75,7 +73,7 @@ def main():
     print("\nPer-class metrics:")
     print(classification_report(all_y_true, all_y_pred))
 
-    # 2. RUN PREDICTIONS ON TEST SET
+    # runing predictions on test set
     print("\n" + "-" * 80)
     print("2. RUNNING PREDICTIONS ON TEST SET")
     print("-" * 80)
@@ -90,7 +88,7 @@ def main():
     print(f"  - Unique classes predicted: {sorted(set(predicted_labels))}")
     print(f"  - Sample predictions (first 10): {predicted_labels[:10]}")
 
-    # 3. GENERATE SUBMISSION CSV
+    # generating submission csv
     print("\n" + "-" * 80)
     print("3. GENERATING SUBMISSION CSV")
     print("-" * 80)
@@ -105,7 +103,7 @@ def main():
     print(f"\nLast 5 rows of submission:")
     print(submission_df.tail())
 
-    # 4. VERIFY END-TO-END PIPELINE
+    # verifying end to end pipline
     print("\n" + "-" * 80)
     print("4. VERIFYING END-TO-END PIPELINE")
     print("-" * 80)
@@ -118,7 +116,6 @@ def main():
         (len(submission_df) == len(test_df), f"Submission rows match test set ({len(submission_df)} == {len(test_df)})"),
         (val_accuracy > 0.95, f"Validation accuracy is strong (>0.95): {val_accuracy:.4f}"),
     ]
-
     all_passed = True
     for passed, check_msg in checks:
         status = "✓" if passed else "✗"
@@ -134,7 +131,6 @@ def main():
     print("=" * 80)
 
     return all_passed
-
 
 if __name__ == '__main__':
     success = main()

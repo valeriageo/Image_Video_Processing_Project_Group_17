@@ -1,13 +1,10 @@
 from __future__ import annotations
-
 from dataclasses import dataclass
 from typing import Tuple
-
 import torch
 from torch.utils.data import Dataset
 from torchvision import transforms
 from PIL import Image
-
 
 @dataclass
 class PreprocessConfig:
@@ -15,7 +12,6 @@ class PreprocessConfig:
     batch_size: int = 64
     val_size: float = 0.2
     seed: int = 42
-
 
 def get_train_transforms(image_size: int = 32) -> transforms.Compose:
     """Return training transforms with light augmentation."""
@@ -30,7 +26,6 @@ def get_train_transforms(image_size: int = 32) -> transforms.Compose:
         ]
     )
 
-
 def get_eval_transforms(image_size: int = 32) -> transforms.Compose:
     """Return evaluation transforms without augmentation."""
     return transforms.Compose(
@@ -41,7 +36,6 @@ def get_eval_transforms(image_size: int = 32) -> transforms.Compose:
             transforms.Normalize((0.5,), (0.5,)),
         ]
     )
-
 
 class ImageClassificationDataset(Dataset):
     def __init__(self, image_paths, labels=None, transform=None):
@@ -62,15 +56,9 @@ class ImageClassificationDataset(Dataset):
         label = int(self.labels[index])
         return image, label
 
-
 def split_train_validation(df, val_size: float = 0.2, seed: int = 42):
     """Create a stratified train/validation split."""
     from sklearn.model_selection import train_test_split
 
-    train_df, val_df = train_test_split(
-        df,
-        test_size=val_size,
-        random_state=seed,
-        stratify=df["Category"],
-    )
+    train_df, val_df = train_test_split(df, test_size=val_size, andom_state=seed,stratify=df["Category"],)
     return train_df.reset_index(drop=True), val_df.reset_index(drop=True)

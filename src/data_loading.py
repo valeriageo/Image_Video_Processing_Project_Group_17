@@ -31,11 +31,9 @@ def build_image_path(
         return TEST_DIR / image_name
     raise ValueError("split must be 'train' or 'test'")
 
-
 def open_image(image_path: Path) -> Image.Image:
     """Open a single image from disk."""
     return Image.open(image_path)
-
 
 def show_basic_dataset_info(train_df: pd.DataFrame, test_df: pd.DataFrame) -> None:
     """Print the most useful first checks for the dataset."""
@@ -45,7 +43,6 @@ def show_basic_dataset_info(train_df: pd.DataFrame, test_df: pd.DataFrame) -> No
     print("Test columns:", list(test_df.columns))
     print("Train labels:", sorted(train_df["Category"].unique()))
     print("Train label counts:\n", train_df["Category"].value_counts().sort_index())
-
 
 if __name__ == "__main__":
     train_df, test_df = load_csv_files()
