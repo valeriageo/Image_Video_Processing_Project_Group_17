@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 from pathlib import Path
 import sys
-
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
@@ -130,7 +129,7 @@ def main():
     train_df, _ = load_csv_files()
     train_split, val_split = split_train_validation(train_df, val_size=0.2, seed=42)
 
-    # Build loaders for standard training
+    # Building loaders for standard training
     train_loader, val_loader, train_dataset, val_dataset = build_loaders(train_split, val_split)
 
     device = get_device()

@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 import torch
 from torch.utils.data import DataLoader
+from torchvision import transforms
 
 def find_project_root(start=None):
     start = (start or Path.cwd()).resolve()
@@ -21,14 +22,51 @@ from src.data_loading import load_csv_files, build_image_path
 from src.preprocessing import split_train_validation, get_train_transforms, get_eval_transforms, ImageClassificationDataset
 from src.baseline_cnn import BaselineCNN
 from src.training import get_device, fit
+from src.inference import predict_probabilities_with_tta
 
 OUTPUT_DIR = ROOT / 'outputs'
 device = get_device()
 train_df, test_df = load_csv_files()
 
 seeds = [42, 789, 2025]
-print(f"{len(seeds)} Models with Different Seeds")
+print(f"{len(seeds)} Models with Different Seed")
 all_test_probs = []
+model_weights = []
+
+test_paths = [build_image_path(image_id, split='test') for image_id in test_df['Id'].tolist()]
+
+tta_transforms = [
+    get_eval_transforms(32),
+    transforms.Compose(
+        [
+            transforms.Grayscale(num_output_channels=1),
+            transforms.Resize((32, 32)),
+            transforms.RandomRotation((6, 6)),
+            transforms.ToTensor(),
+            transforms.Normalize((0.5,), (0.5,)),
+        ]
+    ),
+    transforms.Compose(
+        [
+            transforms.Grayscale(num_output_channels=1),
+            transforms.Resize((32, 32)),
+            transforms.RandomRotation((-6, -6)),
+            transforms.ToTensor(),
+            transforms.Normalize((0.5,), (0.5,)),
+        ]
+    ),
+    transforms.Compose(
+        [
+            transforms.Grayscale(num_output_channels=1),
+            transforms.Resize((32, 32)),
+            transforms.RandomAffine(0, translate=(0.04, 0.04)),
+            transforms.ToTensor(),
+            transforms.Normalize((0.5,), (0.5,)),
+        ]
+    ),
+]
+
+print(f"Using {len(tta_transforms)} TTA transforms per model")
 
 for model_idx, seed in enumerate(seeds, 1):
     print(f"\n[Model {model_idx}/{len(seeds)}] Training with seed={seed}")
@@ -67,32 +105,30 @@ for model_idx, seed in enumerate(seeds, 1):
         patience=7,
         save_path=OUTPUT_DIR / f'ensemble_model_{model_idx}.pt',
     )
-    print(f"Best val acc: {max(history['val_accuracy']):.4f}")
+    best_val_acc = max(history['val_accuracy'])
+    print(f"Best val acc: {best_val_acc:.4f}")
+    model_weights.append(best_val_acc)
     
-    # Getting test predictions with probabilities
-    test_paths = [build_image_path(image_id, split='test') for image_id in test_df['Id'].tolist()]
-    test_dataset = ImageClassificationDataset(test_paths, labels=None, transform=get_eval_transforms(32))
-    test_loader = DataLoader(test_dataset, batch_size=64, shuffle=False, num_workers=0)
-    
-    model.eval()
-    test_probs = []
-    with torch.no_grad():
-        for images, _ in test_loader:
-            images = images.to(device)
-            logits = model(images)
-            probs = torch.softmax(logits, dim=1).cpu().numpy()
-            test_probs.extend(probs)
-    
-    all_test_probs.append(np.array(test_probs))
-    print(f"Generated test probabilities")
+    test_loaders = []
+    for tta_transform in tta_transforms:
+        test_dataset = ImageClassificationDataset(test_paths, labels=None, transform=tta_transform)
+        test_loader = DataLoader(test_dataset, batch_size=64, shuffle=False, num_workers=0)
+        test_loaders.append(test_loader)
+
+    model_probs = predict_probabilities_with_tta(model, test_loaders, device)
+    all_test_probs.append(model_probs)
+    print("Generated TTA probabilities")
 
 # Ensemble average softmax probabilities
-print("ENSEMBLE AVERAGING")
+print("ensemble averaging predictions")
 
-avg_probs = np.mean(np.array(all_test_probs), axis=0)
+weights = np.array(model_weights, dtype=np.float32)
+weights = weights / weights.sum()
+avg_probs = np.tensordot(weights, np.array(all_test_probs), axes=(0, 0))
 final_predictions = np.argmax(avg_probs, axis=1)
 
 print(f"Averaged probabilities from {len(seeds)} models")
+print(f"Model weights: {[round(float(w), 4) for w in weights]}")
 print(f"Sample predictions: {final_predictions[:10]}")
 
 # Save

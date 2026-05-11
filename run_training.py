@@ -25,11 +25,10 @@ from src.preprocessing import (
     split_train_validation,
     get_train_transforms,
     get_eval_transforms,
-    ImageClassificationDataset,
-)
+    ImageClassificationDataset,)
+
 from src.baseline_cnn import BaselineCNN
 from src.training import get_device, fit
-
 
 def main():
     train_df, _ = load_csv_files()
@@ -40,19 +39,15 @@ def main():
 
     train_paths = [
         build_image_path(row.Id, split="train", label=row.Category)
-        for row in train_split_df.itertuples(index=False)
-    ]
+        for row in train_split_df.itertuples(index=False)]
     val_paths = [
         build_image_path(row.Id, split="train", label=row.Category)
-        for row in val_split_df.itertuples(index=False)
-    ]
+        for row in val_split_df.itertuples(index=False)]
 
     train_dataset = ImageClassificationDataset(
-        train_paths, train_split_df["Category"].tolist(), transform=train_transform
-    )
+        train_paths, train_split_df["Category"].tolist(), transform=train_transform)
     val_dataset = ImageClassificationDataset(
-        val_paths, val_split_df["Category"].tolist(), transform=val_transform
-    )
+        val_paths, val_split_df["Category"].tolist(), transform=val_transform)
 
     train_loader = DataLoader(train_dataset, batch_size=64, shuffle=True, num_workers=0)
     val_loader = DataLoader(val_dataset, batch_size=64, shuffle=False, num_workers=0)
@@ -71,8 +66,7 @@ def main():
         device=device,
         epochs=30,  # Train longer with early stopping
         patience=7,  # Early stopping patience
-        save_path=ROOT / "outputs" / "baseline_cnn.pt",
-    )
+        save_path=ROOT / "outputs" / "baseline_cnn.pt",)
     OUTPUT_DIR = ROOT / "outputs"
     OUTPUT_DIR.mkdir(exist_ok=True)
     PLOT_PATH = OUTPUT_DIR / "training_curves.png"
@@ -88,6 +82,7 @@ def main():
     axes[1].legend()
     fig.tight_layout()
     fig.savefig(PLOT_PATH, dpi=150, bbox_inches="tight")
+
     print("saved training curves to:", PLOT_PATH)
     print("saved model to:", ROOT / "outputs" / "baseline_cnn.pt")
     print("final train accuracy:", history["train_accuracy"][-1])

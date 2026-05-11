@@ -86,19 +86,19 @@ def main():
     submission_df = build_submission(test_df['Id'].tolist(), predicted_labels)
     save_submission(submission_df, SUBMISSION_PATH)
     print(f"Submission saved to: {SUBMISSION_PATH}")
-    print(f"  - Shape: {submission_df.shape}")
-    print(f"  - Columns: {list(submission_df.columns)}")
-    print(f"\nFirst 5 rows of submission:")
+    print(f"Shape: {submission_df.shape}")
+    print(f"Columns: {list(submission_df.columns)}")
+    print(f"First 5 rows of submission:")
     print(submission_df.head())
-    print(f"\nLast 5 rows of submission:")
+    print(f"Last 5 rows of submission:")
     print(submission_df.tail())
 
     # verifying end to end pipline
     print("verifying end to end pipeline ")
 
     checks = [
-        (MODEL_PATH.exists(), f"Model checkpoint exists: {MODEL_PATH}"),
-        (SUBMISSION_PATH.exists(), f"Submission CSV exists: {SUBMISSION_PATH}"),
+        (MODEL_PATH.exists(), f"Model checkpoint exists:{MODEL_PATH}"),
+        (SUBMISSION_PATH.exists(), f"Submission CSV exists:{SUBMISSION_PATH}"),
         (len(predicted_labels) == len(test_df), f"Predictions match test set size ({len(predicted_labels)} == {len(test_df)})"),
         (all(0 <= p < 10 for p in predicted_labels), "All predictions are valid class indices [0-9]"),
         (len(submission_df) == len(test_df), f"Submission rows match test set ({len(submission_df)} == {len(test_df)})"),

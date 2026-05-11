@@ -40,11 +40,9 @@ def save_preprocessing_figure(out_path: Path) -> None:
     axes[0].imshow(raw_image, cmap="gray")
     axes[0].set_title("Raw image")
     axes[0].axis("off")
-
     axes[1].imshow(transformed_image, cmap="gray")
     axes[1].set_title("Preprocessed image")
     axes[1].axis("off")
-
     axes[2].bar(class_counts.index.astype(str), class_counts.values, color="#4c72b0")
     axes[2].set_title("Class balance")
     axes[2].set_xlabel("Class")

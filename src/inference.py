@@ -61,6 +61,30 @@ def predict_labels_with_tta(model: torch.nn.Module, dataloaders: List[DataLoader
     predictions = np.argmax(avg_logits, axis=1).tolist()
     return predictions
 
+def predict_probabilities_with_tta(
+    model: torch.nn.Module,
+    dataloaders: List[DataLoader],
+    device: torch.device,
+) -> np.ndarray:
+    """Predict class probabilities using Test-Time Augmentation (TTA).
+    Returns averaged softmax probabilities with shape (N, num_classes).
+    """
+    model.eval()
+    num_samples = len(dataloaders[0].dataset)
+    all_probs = np.zeros((num_samples, 10), dtype=np.float32)
+
+    with torch.no_grad():
+        for dataloader in dataloaders:
+            idx = 0
+            for images, _ in dataloader:
+                images = images.to(device)
+                probs = torch.softmax(model(images), dim=1).cpu().numpy()
+                batch_size = probs.shape[0]
+                all_probs[idx:idx + batch_size] += probs
+                idx += batch_size
+
+    return all_probs / len(dataloaders)
+
 def build_submission(test_ids: List[int], predicted_labels: List[int]) -> pd.DataFrame:
     """Create the submission dataframe in the required format."""
     return pd.DataFrame({"Id": test_ids, "Category": predicted_labels})

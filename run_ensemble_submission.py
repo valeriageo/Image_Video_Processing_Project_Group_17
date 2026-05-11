@@ -30,7 +30,7 @@ print("ENSEMBLE SUBMISSION — Train 3 models with different seeds")
 device = get_device()
 train_df, test_df = load_csv_files()
 
-# Train 3 models with different random seed for diversity
+# Training 3 models with different random seed for diversity
 seeds = [42, 123, 999]  # Different seed for variety
 all_test_predictions = []
 

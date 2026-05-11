@@ -114,5 +114,5 @@ The figures for the report are saved in `outputs/figures/`:
 ### Notes:
 - The notebooks automatically detect the project root, so no manual path editing needed
 - The project supports CPU, GPU (CUDA), and Apple Silicon (MPS) automatically
-- Training takes ~30 seconds on a modern laptop
+- Training takes ~30 sec
 - Final submission saved to `outputs/submission.csv`
